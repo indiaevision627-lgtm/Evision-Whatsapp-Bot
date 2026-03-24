@@ -39,13 +39,21 @@ Rules:
 - If they say Hi/Hello, introduce yourself as the Evision Assistant and ask what kind of security solution or camera they are looking for.
 `;
 
+const express = require('express');
+const app = express();
+const port = process.env.PORT || 3000;
+
+// Dummy server so Render doesn't crash with "Timed Out"
+app.get('/', (req, res) => res.send('WhatsApp Bot is Live!'));
+app.listen(port, () => console.log(`🌍 Server running on port ${port}`));
+
 const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
         headless: true, // Background me chalega
-        executablePath: process.env.RENDER || process.env.PUPPETEER_EXECUTABLE_PATH 
-            ? process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome-stable'
-            : 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+        executablePath: process.platform === 'win32' 
+            ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
+            : '/usr/bin/google-chrome-stable',
         args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
     }
 });
