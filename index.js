@@ -67,6 +67,9 @@ client.on('ready', () => {
     console.log('Waiting for incoming messages...\n');
 });
 
+// har user ka chat history save karne ke liye
+const userSessions = new Map();
+
 // Jab koi naya message aaye
 client.on('message', async (message) => {
     const text = message.body;
@@ -93,12 +96,19 @@ client.on('message', async (message) => {
             model: "gemini-2.5-flash",
             systemInstruction: botInstructions 
         });
+
+        // Nayi chat shuru karo agar user purana na ho
+        let chat = userSessions.get(sender);
+        if (!chat) {
+            chat = model.startChat({ history: [] });
+            userSessions.set(sender, chat);
+        }
         
-        const result = await model.generateContent(text);
+        const result = await chat.sendMessage(text);
         const responseText = result.response.text();
 
         await message.reply(responseText);
-        console.log("-> Sent Gemini AI response");
+        console.log("-> Sent Gemini AI response with memory!");
 
     } catch (error) {
         console.error("❌ Gemini Error:", error);
